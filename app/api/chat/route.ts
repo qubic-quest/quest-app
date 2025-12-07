@@ -132,7 +132,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[query_recent_transactions] Args:', args);
-            const transactions = queryRecentTransactions({
+            const transactions = await queryRecentTransactions({
               limit: Math.min(args.limit || 20, 100),
               category: args.category,
               contract: args.contract,
@@ -184,7 +184,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[query_asset_trades] Args:', args);
-            const trades = queryAssetTrades({
+            const trades = await queryAssetTrades({
               assetName: args.assetName,
               limit: Math.min(args.limit || 50, 100),
               event: args.event,
@@ -316,7 +316,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[query_wallet_activity] Looking up wallet:', args.walletId);
-            const activity = queryWalletActivity(args.walletId);
+            const activity = await queryWalletActivity(args.walletId);
             console.log('[query_wallet_activity] Activity found:', activity !== null);
             
             if (!activity) {
@@ -340,7 +340,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
             }> | undefined = undefined;
             
             if (args.includeTransactions !== false) {
-              const txs = queryWalletTransactions(
+              const txs = await queryWalletTransactions(
                 args.walletId,
                 Math.min(args.transactionLimit || 20, 50)
               );
@@ -382,13 +382,13 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[get_tick_info] Querying tick:', args.tickNumber);
-            const tick = getTickInfo(args.tickNumber);
+            const tick = await getTickInfo(args.tickNumber);
             console.log('[get_tick_info] Query result:', tick);
             
             if (!tick) {
               console.log('[get_tick_info] Tick not found, getting stats for error message');
               // Get database tick range for helpful error message
-              const stats = getDatabaseStats();
+              const stats = await getDatabaseStats();
               return {
                 id: `tick-${Date.now()}`,
                 role: "information" as const,
@@ -400,7 +400,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
 
             // Get transactions for this tick
             console.log('[get_tick_info] Fetching transactions for tick');
-            const txs = getTickTransactions(args.tickNumber, 100);
+            const txs = await getTickTransactions(args.tickNumber, 100);
             console.log('[get_tick_info] Found', txs.length, 'transactions');
             
             const transactions = txs.map(tx => ({
@@ -442,7 +442,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async () => {
           try {
             console.log('[get_database_stats] Fetching database statistics');
-            const stats = getDatabaseStats();
+            const stats = await getDatabaseStats();
             console.log('[get_database_stats] Stats:', stats);
 
             return {
@@ -499,7 +499,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[query_qearn_transactions] Args:', args);
-            const transactions = queryQEARNTransactions({
+            const transactions = await queryQEARNTransactions({
               event: args.event,
               limit: Math.min(args.limit || 50, 100),
             });
@@ -545,7 +545,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[query_ccf_transactions] Args:', args);
-            const transactions = queryCCFTransactions({
+            const transactions = await queryCCFTransactions({
               event: args.event,
               limit: Math.min(args.limit || 50, 100),
             });
@@ -595,7 +595,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[query_qbay_transactions] Args:', args);
-            const transactions = queryQBAYTransactions({
+            const transactions = await queryQBAYTransactions({
               event: args.event,
               limit: Math.min(args.limit || 50, 100),
             });
@@ -647,7 +647,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
             const limit = Math.min(args.limit || 20, 50);
             
             // Get most active addresses from database
-            const holders = queryTopHolders(limit);
+            const holders = await queryTopHolders(limit);
             console.log('[query_top_holders] Found', holders.length, 'active addresses');
 
             // Fetch balances from RPC (in parallel for performance)
@@ -869,7 +869,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
             
             // Fetch assets and QUBIC balance in parallel
             const [assets, qubicBalance] = await Promise.all([
-              Promise.resolve(queryWalletPortfolio(args.walletId)),
+              queryWalletPortfolio(args.walletId),
               getWalletBalance(args.walletId),
             ]);
             
@@ -901,7 +901,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async () => {
           try {
             console.log('[get_market_overview] Fetching market stats');
-            const overview = getMarketOverview();
+            const overview = await getMarketOverview();
             console.log('[get_market_overview] Overview:', overview);
 
             return {
@@ -934,7 +934,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
         execute: async (args) => {
           try {
             console.log('[compare_assets] Comparing assets:', args.assetNames);
-            const comparison = compareAssets(args.assetNames);
+            const comparison = await compareAssets(args.assetNames);
             console.log('[compare_assets] Comparison results:', comparison.length, 'assets');
 
             return {
@@ -970,7 +970,7 @@ Help users explore and understand Qubic blockchain data. Use the specialized too
           minAmount,
         }): Promise<z.infer<typeof whaleTransactionsResultSchema>> => {
           try {
-            const transactions = queryWhaleTransactions(minAmount);
+            const transactions = await queryWhaleTransactions(minAmount);
 
             const totalValue = transactions.reduce(
               (sum, tx) => sum + tx.amount,

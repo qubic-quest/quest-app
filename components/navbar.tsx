@@ -135,6 +135,12 @@ export function Navbar({ onWalletChange }: NavbarProps) {
 
                 {/* Right: Wallet Connection */}
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => window.open("https://github.com/qubic-quest", "_blank")}
+                        className="p-2 rounded-lg hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                    >
+                        <img src="/github-mark.svg" alt="GitHub" className="h-5 w-5" />
+                    </button>
                     {!walletAddress && !isEditingWallet ? (
                         <Button
                             variant="outline"
@@ -174,10 +180,10 @@ export function Navbar({ onWalletChange }: NavbarProps) {
                         <div className="flex items-center gap-2 rounded-lg border bg-card px-3 py-1.5">
                             <Wallet className="h-4 w-4 text-emerald-500" />
                             <span className="hidden sm:inline text-sm font-mono text-muted-foreground">
-                                {walletAddress.slice(0, 8)}...{walletAddress.slice(-8)}
+                                {walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}
                             </span>
                             <span className="sm:hidden text-sm font-mono text-muted-foreground">
-                                {walletAddress.slice(0, 6)}...
+                                {walletAddress.slice(0, 4)}...
                             </span>
                             <Button
                                 size="sm"

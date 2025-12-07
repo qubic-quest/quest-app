@@ -1,17 +1,20 @@
-import Database from "better-sqlite3";
-import path from "path";
+import { createClient, Client } from "@libsql/client";
 
-const DB_PATH = path.resolve(
-  process.cwd(),
-  process.env.DATABASE_PATH || "../deepsight.db"
-);
-
-let db: Database.Database | null = null;
+let db: Client | null = null;
 
 export function getDatabase() {
   if (!db) {
-    db = new Database(DB_PATH, { readonly: true });
-    // Don't set WAL mode on readonly databases - it requires write access
+    const url = process.env.TURSO_DATABASE_URL;
+    const authToken = process.env.TURSO_AUTH_TOKEN;
+
+    if (!url) {
+      throw new Error("TURSO_DATABASE_URL environment variable is not set");
+    }
+
+    db = createClient({
+      url,
+      authToken,
+    });
   }
   return db;
 }

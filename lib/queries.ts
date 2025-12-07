@@ -1,10 +1,10 @@
 import { getDatabase, Transaction, QXTrade, WalletActivity, TickInfo, QEARNTransaction, CCFTransaction, QBAYTransaction } from "./db";
 
-export function queryRecentTransactions(params: {
+export async function queryRecentTransactions(params: {
   limit?: number;
   category?: string;
   contract?: string;
-}): Transaction[] {
+}): Promise<Transaction[]> {
   const db = getDatabase();
   const { limit = 20, category, contract } = params;
 
@@ -24,14 +24,15 @@ export function queryRecentTransactions(params: {
   sql += " ORDER BY tick_number DESC LIMIT ?";
   sqlParams.push(limit);
 
-  return db.prepare(sql).all(...sqlParams) as Transaction[];
+  const result = await db.execute({ sql, args: sqlParams });
+  return result.rows as unknown as Transaction[];
 }
 
-export function queryAssetTrades(params: {
+export async function queryAssetTrades(params: {
   assetName?: string;
   limit?: number;
   event?: string;
-}): QXTrade[] {
+}): Promise<QXTrade[]> {
   const db = getDatabase();
   const { assetName, limit = 50, event } = params;
 
@@ -51,86 +52,92 @@ export function queryAssetTrades(params: {
   sql += " ORDER BY tick_number DESC LIMIT ?";
   sqlParams.push(limit);
 
-  return db.prepare(sql).all(...sqlParams) as QXTrade[];
+  const result = await db.execute({ sql, args: sqlParams });
+  return result.rows as unknown as QXTrade[];
 }
 
-export function queryWalletActivity(walletId: string): WalletActivity | null {
+export async function queryWalletActivity(walletId: string): Promise<WalletActivity | null> {
   const db = getDatabase();
   
-  const activity = db
-    .prepare("SELECT * FROM addresses WHERE address_id = ?")
-    .get(walletId) as WalletActivity | undefined;
+  const result = await db.execute({
+    sql: "SELECT * FROM addresses WHERE address_id = ?",
+    args: [walletId],
+  });
 
-  return activity || null;
+  return (result.rows[0] as unknown as WalletActivity) || null;
 }
 
-export function queryWalletTransactions(
+export async function queryWalletTransactions(
   walletId: string,
   limit: number = 50
-): Transaction[] {
+): Promise<Transaction[]> {
   const db = getDatabase();
   
-  return db
-    .prepare(
-      `SELECT * FROM transactions 
+  const result = await db.execute({
+    sql: `SELECT * FROM transactions 
        WHERE source_id = ? OR dest_id = ? 
        ORDER BY tick_number DESC 
-       LIMIT ?`
-    )
-    .all(walletId, walletId, limit) as Transaction[];
+       LIMIT ?`,
+    args: [walletId, walletId, limit],
+  });
+
+  return result.rows as unknown as Transaction[];
 }
 
-export function getTickInfo(tickNumber: number): TickInfo | null {
+export async function getTickInfo(tickNumber: number): Promise<TickInfo | null> {
   const db = getDatabase();
   
-  const tick = db
-    .prepare("SELECT * FROM ticks WHERE tick_number = ?")
-    .get(tickNumber) as TickInfo | undefined;
+  const result = await db.execute({
+    sql: "SELECT * FROM ticks WHERE tick_number = ?",
+    args: [tickNumber],
+  });
 
-  return tick || null;
+  return (result.rows[0] as unknown as TickInfo) || null;
 }
 
-export function getTickTransactions(tickNumber: number, limit: number = 100): Transaction[] {
+export async function getTickTransactions(tickNumber: number, limit: number = 100): Promise<Transaction[]> {
   const db = getDatabase();
   
-  return db
-    .prepare(
-      `SELECT * FROM transactions 
+  const result = await db.execute({
+    sql: `SELECT * FROM transactions 
        WHERE tick_number = ? 
        ORDER BY tx_id 
-       LIMIT ?`
-    )
-    .all(tickNumber, limit) as Transaction[];
+       LIMIT ?`,
+    args: [tickNumber, limit],
+  });
+
+  return result.rows as unknown as Transaction[];
 }
 
-export function getDatabaseStats() {
+export async function getDatabaseStats() {
   const db = getDatabase();
   
-  const totalTx = db
-    .prepare("SELECT COUNT(*) as count FROM transactions")
-    .get() as { count: number };
+  const totalTx = await db.execute({
+    sql: "SELECT COUNT(*) as count FROM transactions",
+    args: [],
+  });
     
-  const totalTicks = db
-    .prepare("SELECT COUNT(*) as count FROM ticks")
-    .get() as { count: number };
+  const totalTicks = await db.execute({
+    sql: "SELECT COUNT(*) as count FROM ticks",
+    args: [],
+  });
     
-  const tickRange = db
-    .prepare(
-      "SELECT MIN(tick_number) as min, MAX(tick_number) as max FROM ticks"
-    )
-    .get() as { min: number; max: number };
+  const tickRange = await db.execute({
+    sql: "SELECT MIN(tick_number) as min, MAX(tick_number) as max FROM ticks",
+    args: [],
+  });
 
   return {
-    totalTransactions: totalTx.count,
-    totalTicks: totalTicks.count,
-    tickRange: `${tickRange.min} → ${tickRange.max}`,
+    totalTransactions: (totalTx.rows[0] as any).count,
+    totalTicks: (totalTicks.rows[0] as any).count,
+    tickRange: `${(tickRange.rows[0] as any).min} → ${(tickRange.rows[0] as any).max}`,
   };
 }
 
-export function queryQEARNTransactions(params: {
+export async function queryQEARNTransactions(params: {
   event?: string;
   limit?: number;
-}): QEARNTransaction[] {
+}): Promise<QEARNTransaction[]> {
   const db = getDatabase();
   const { event, limit = 50 } = params;
 
@@ -145,13 +152,14 @@ export function queryQEARNTransactions(params: {
   sql += " ORDER BY tick_number DESC LIMIT ?";
   sqlParams.push(limit);
 
-  return db.prepare(sql).all(...sqlParams) as QEARNTransaction[];
+  const result = await db.execute({ sql, args: sqlParams });
+  return result.rows as unknown as QEARNTransaction[];
 }
 
-export function queryCCFTransactions(params: {
+export async function queryCCFTransactions(params: {
   event?: string;
   limit?: number;
-}): CCFTransaction[] {
+}): Promise<CCFTransaction[]> {
   const db = getDatabase();
   const { event, limit = 50 } = params;
 
@@ -166,13 +174,14 @@ export function queryCCFTransactions(params: {
   sql += " ORDER BY tick_number DESC LIMIT ?";
   sqlParams.push(limit);
 
-  return db.prepare(sql).all(...sqlParams) as CCFTransaction[];
+  const result = await db.execute({ sql, args: sqlParams });
+  return result.rows as unknown as CCFTransaction[];
 }
 
-export function queryQBAYTransactions(params: {
+export async function queryQBAYTransactions(params: {
   event?: string;
   limit?: number;
-}): QBAYTransaction[] {
+}): Promise<QBAYTransaction[]> {
   const db = getDatabase();
   const { event, limit = 50 } = params;
 
@@ -187,7 +196,8 @@ export function queryQBAYTransactions(params: {
   sql += " ORDER BY tick_number DESC LIMIT ?";
   sqlParams.push(limit);
 
-  return db.prepare(sql).all(...sqlParams) as QBAYTransaction[];
+  const result = await db.execute({ sql, args: sqlParams });
+  return result.rows as unknown as QBAYTransaction[];
 }
 
 export interface TopHolder {
@@ -198,13 +208,12 @@ export interface TopHolder {
   address_type?: string;
 }
 
-export function queryTopHolders(limit: number = 20): TopHolder[] {
+export async function queryTopHolders(limit: number = 20): Promise<TopHolder[]> {
   const db = getDatabase();
   
   // Get most active addresses (excluding system addresses)
-  return db
-    .prepare(
-      `SELECT 
+  const result = await db.execute({
+    sql: `SELECT 
         source_id as address_id,
         COUNT(*) as tx_count,
         MIN(tick_number) as first_seen_tick,
@@ -214,9 +223,11 @@ export function queryTopHolders(limit: number = 20): TopHolder[] {
          AND category != 'system'
        GROUP BY source_id 
        ORDER BY tx_count DESC 
-       LIMIT ?`
-    )
-    .all(limit) as TopHolder[];
+       LIMIT ?`,
+    args: [limit],
+  });
+
+  return result.rows as unknown as TopHolder[];
 }
 
 export interface WalletAsset {
@@ -231,13 +242,12 @@ export interface WalletAsset {
   trade_count: number;
 }
 
-export function queryWalletPortfolio(walletId: string): WalletAsset[] {
+export async function queryWalletPortfolio(walletId: string): Promise<WalletAsset[]> {
   const db = getDatabase();
   
   // Get all assets this wallet has traded
-  return db
-    .prepare(
-      `SELECT 
+  const result = await db.execute({
+    sql: `SELECT 
         asset_name,
         SUM(CASE WHEN event = 'Buy' THEN shares ELSE 0 END) as total_bought,
         SUM(CASE WHEN event = 'Sell' THEN shares ELSE 0 END) as total_sold,
@@ -253,9 +263,11 @@ export function queryWalletPortfolio(walletId: string): WalletAsset[] {
          AND shares IS NOT NULL
        GROUP BY asset_name
        HAVING net_shares > 0
-       ORDER BY net_shares DESC`
-    )
-    .all(walletId) as WalletAsset[];
+       ORDER BY net_shares DESC`,
+    args: [walletId],
+  });
+
+  return result.rows as unknown as WalletAsset[];
 }
 
 export interface MarketOverview {
@@ -268,41 +280,41 @@ export interface MarketOverview {
   latest_tick: number;
 }
 
-export function getMarketOverview(): MarketOverview {
+export async function getMarketOverview(): Promise<MarketOverview> {
   const db = getDatabase();
   
-  const stats = db
-    .prepare(
-      `SELECT 
+  const statsResult = await db.execute({
+    sql: `SELECT 
         COUNT(DISTINCT asset_name) as total_assets,
         COUNT(*) as total_trades,
         SUM(CASE WHEN price IS NOT NULL AND shares IS NOT NULL THEN price * shares ELSE 0 END) as total_volume_qubic,
         COUNT(DISTINCT source_id) as unique_traders,
         MAX(tick_number) as latest_tick
        FROM qx_transactions
-       WHERE event IN ('Buy', 'Sell')`
-    )
-    .get() as any;
+       WHERE event IN ('Buy', 'Sell')`,
+    args: [],
+  });
+  const stats = statsResult.rows[0] as any;
     
-  const topAsset = db
-    .prepare(
-      `SELECT asset_name, COUNT(*) as trade_count
+  const topAssetResult = await db.execute({
+    sql: `SELECT asset_name, COUNT(*) as trade_count
        FROM qx_transactions
        WHERE event IN ('Buy', 'Sell')
        GROUP BY asset_name
        ORDER BY trade_count DESC
-       LIMIT 1`
-    )
-    .get() as any;
+       LIMIT 1`,
+    args: [],
+  });
+  const topAsset = topAssetResult.rows[0] as any;
 
   return {
-    total_assets: stats.total_assets || 0,
-    total_trades: stats.total_trades || 0,
-    total_volume_qubic: stats.total_volume_qubic || 0,
-    unique_traders: stats.unique_traders || 0,
+    total_assets: stats?.total_assets || 0,
+    total_trades: stats?.total_trades || 0,
+    total_volume_qubic: stats?.total_volume_qubic || 0,
+    unique_traders: stats?.unique_traders || 0,
     most_traded_asset: topAsset?.asset_name || null,
     most_traded_count: topAsset?.trade_count || 0,
-    latest_tick: stats.latest_tick || 0,
+    latest_tick: stats?.latest_tick || 0,
   };
 }
 
@@ -319,15 +331,14 @@ export interface AssetComparison {
   price_change_percent: number | null;
 }
 
-export function compareAssets(assetNames: string[]): AssetComparison[] {
+export async function compareAssets(assetNames: string[]): Promise<AssetComparison[]> {
   const db = getDatabase();
   
   const results: AssetComparison[] = [];
   
   for (const assetName of assetNames) {
-    const stats = db
-      .prepare(
-        `SELECT 
+    const statsResult = await db.execute({
+      sql: `SELECT 
           ? as asset_name,
           COUNT(*) as total_trades,
           SUM(CASE WHEN price IS NOT NULL AND shares IS NOT NULL THEN price * shares ELSE 0 END) as total_volume,
@@ -339,26 +350,27 @@ export function compareAssets(assetNames: string[]): AssetComparison[] {
          FROM qx_transactions
          WHERE asset_name = ?
            AND event IN ('Buy', 'Sell')
-           AND price IS NOT NULL`
-      )
-      .get(assetName, assetName) as any;
+           AND price IS NOT NULL`,
+      args: [assetName, assetName],
+    });
+    const stats = statsResult.rows[0] as any;
       
     // Get first and last price for change calculation
-    const firstPrice = db
-      .prepare(
-        `SELECT price FROM qx_transactions
+    const firstPriceResult = await db.execute({
+      sql: `SELECT price FROM qx_transactions
          WHERE asset_name = ? AND price IS NOT NULL AND event IN ('Buy', 'Sell')
-         ORDER BY tick_number ASC LIMIT 1`
-      )
-      .get(assetName) as any;
+         ORDER BY tick_number ASC LIMIT 1`,
+      args: [assetName],
+    });
+    const firstPrice = firstPriceResult.rows[0] as any;
       
-    const lastPrice = db
-      .prepare(
-        `SELECT price FROM qx_transactions
+    const lastPriceResult = await db.execute({
+      sql: `SELECT price FROM qx_transactions
          WHERE asset_name = ? AND price IS NOT NULL AND event IN ('Buy', 'Sell')
-         ORDER BY tick_number DESC LIMIT 1`
-      )
-      .get(assetName) as any;
+         ORDER BY tick_number DESC LIMIT 1`,
+      args: [assetName],
+    });
+    const lastPrice = lastPriceResult.rows[0] as any;
       
     const priceChange = firstPrice?.price && lastPrice?.price
       ? ((lastPrice.price - firstPrice.price) / firstPrice.price) * 100
@@ -381,10 +393,11 @@ export function compareAssets(assetNames: string[]): AssetComparison[] {
   return results;
 }
 
-export function queryWhaleTransactions(minAmount: number = 1000000): Transaction[] {
+export async function queryWhaleTransactions(minAmount: number = 1000000): Promise<Transaction[]> {
   const db = getDatabase();
 
   const sql = "SELECT * FROM transactions WHERE amount >= ? ORDER BY amount DESC, tick_number DESC LIMIT 50";
 
-  return db.prepare(sql).all(minAmount) as Transaction[];
+  const result = await db.execute({ sql, args: [minAmount] });
+  return result.rows as unknown as Transaction[];
 }

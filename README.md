@@ -75,7 +75,7 @@ Chat with your blockchain data using natural language queries. The AI understand
 ### Prerequisites
 
 - Node.js 18+ and npm
-- SQLite database with Qubic transactions (see [data ingestion guide](./MVP_README.md#database-setup))
+- SQLite database with Qubic transactions (see [quest-pipeline](https://github.com/qubic-quest/quest-pipeline))
 - OpenAI API key
 
 ### Installation
@@ -216,7 +216,6 @@ See [TODO.md](./TODO.md) for the full roadmap.
 ## 📚 Documentation
 
 - **[TEST_QUERIES.md](./TEST_QUERIES.md)** - Example queries for all tools
-- **[DEBUGGING_GUIDE.md](./DEBUGGING_GUIDE.md)** - Troubleshooting guide
 - **[TODO.md](./TODO.md)** - Roadmap and task tracking
 
 ---

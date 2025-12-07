@@ -6,7 +6,7 @@ import {
   tool,
 } from "ai";
 import { z } from "zod";
-import { 
+import {
   queryRecentTransactions, 
   queryAssetTrades,
   queryWalletActivity,

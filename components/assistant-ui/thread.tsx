@@ -94,10 +94,10 @@ const ThreadWelcome: FC = () => {
               className="relative fade-in mb-2 h-28 w-28 animate-in duration-300 hover:scale-110 transition-transform"
             />
           </div>
-          <h1 className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in font-bold text-5xl duration-300">
+          <h1 className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in font-bold text-6xl duration-300 font-[family-name:var(--font-playfair)]">
             Welcome to <span className="bg-linear-to-r from-emerald-400 to-teal-600 bg-clip-text text-transparent">Quest</span> 🔍
           </h1>
-          <p className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in text-muted-foreground text-2xl delay-75 duration-300">
+          <p className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in text-muted-foreground text-xl delay-75 duration-300">
             Explore the Qubic blockchain with AI-powered insights
           </p>
         </div>

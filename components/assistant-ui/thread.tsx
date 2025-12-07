@@ -27,6 +27,10 @@ import {
   PencilIcon,
   RefreshCwIcon,
   SquareIcon,
+  TrendingUpIcon,
+  UsersIcon,
+  ActivityIcon,
+  ZapIcon,
 } from "lucide-react";
 import type { FC } from "react";
 
@@ -81,16 +85,19 @@ const ThreadWelcome: FC = () => {
   return (
     <div className="aui-thread-welcome-root mx-auto my-auto flex w-full max-w-(--thread-max-width) grow flex-col">
       <div className="aui-thread-welcome-center flex w-full grow flex-col items-center justify-center">
-        <div className="aui-thread-welcome-message flex size-full flex-col items-center justify-center px-4">
-          <img 
-            src="/logo.png" 
-            alt="Quest Logo" 
-            className="fade-in mb-2 h-20 w-20 animate-in grayscale opacity-60 duration-200"
-          />
-          <h1 className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in font-semibold text-2xl duration-200">
-            Welcome to Quest 🔍
+        <div className="aui-thread-welcome-message flex size-full flex-col items-start justify-center px-4 gap-4">
+          <div className="relative self-center">
+            <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl animate-pulse"></div>
+            <img 
+              src="/logo_2.png" 
+              alt="Quest Logo" 
+              className="relative fade-in mb-2 h-28 w-28 animate-in duration-300 hover:scale-110 transition-transform"
+            />
+          </div>
+          <h1 className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in font-bold text-5xl duration-300">
+            Welcome to <span className="bg-linear-to-r from-emerald-400 to-teal-600 bg-clip-text text-transparent">Quest</span> 🔍
           </h1>
-          <p className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in text-muted-foreground text-xl delay-75 duration-200">
+          <p className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-1 animate-in text-muted-foreground text-2xl delay-75 duration-300">
             Explore the Qubic blockchain with AI-powered insights
           </p>
         </div>
@@ -102,52 +109,72 @@ const ThreadWelcome: FC = () => {
 
 const SUGGESTIONS = [
   {
+    icon: TrendingUpIcon,
     title: "Show me QUBIC price",
     label: "with 7-day chart",
     prompt: "What's the current QUBIC price with a 7-day chart?",
+    iconColor: "text-emerald-600",
+    bgColor: "bg-emerald-500/10",
   },
   {
+    icon: UsersIcon,
     title: "Top 10 QUBIC holders",
     label: "with live balances",
     prompt: "Show me the top 10 QUBIC holders with their current balances",
+    iconColor: "text-cyan-600",
+    bgColor: "bg-cyan-500/10",
   },
   {
+    icon: ActivityIcon,
     title: "Latest CFB trades",
     label: "on QX exchange",
     prompt: "Show me recent CFB trades on the QX exchange",
+    iconColor: "text-teal-600",
+    bgColor: "bg-teal-500/10",
   },
   {
+    icon: ZapIcon,
     title: "Whale transactions",
     label: "over 10M QUBIC",
     prompt: "Show me whale transactions over 10 million QUBIC",
+    iconColor: "text-green-600",
+    bgColor: "bg-green-500/10",
   },
 ] as const;
 
 const ThreadSuggestions: FC = () => {
   return (
-    <div className="aui-thread-welcome-suggestions grid w-full @md:grid-cols-2 gap-2 pb-4">
-      {SUGGESTIONS.map((suggestion, index) => (
-        <div
-          key={suggestion.prompt}
-          className="aui-thread-welcome-suggestion-display fade-in slide-in-from-bottom-2 @md:nth-[n+3]:block nth-[n+3]:hidden animate-in fill-mode-both duration-200"
-          style={{ animationDelay: `${100 + index * 50}ms` }}
-        >
-          <ThreadPrimitive.Suggestion prompt={suggestion.prompt} send asChild>
-            <Button
-              variant="ghost"
-              className="aui-thread-welcome-suggestion h-auto w-full @md:flex-col flex-wrap items-start justify-start gap-1 rounded-2xl border px-4 py-3 text-left text-sm transition-colors hover:bg-muted"
-              aria-label={suggestion.prompt}
-            >
-              <span className="aui-thread-welcome-suggestion-text-1 font-medium">
-                {suggestion.title}
-              </span>
-              <span className="aui-thread-welcome-suggestion-text-2 text-muted-foreground">
-                {suggestion.label}
-              </span>
-            </Button>
-          </ThreadPrimitive.Suggestion>
-        </div>
-      ))}
+    <div className="aui-thread-welcome-suggestions grid w-full @md:grid-cols-2 gap-3 pb-4">
+      {SUGGESTIONS.map((suggestion, index) => {
+        const Icon = suggestion.icon;
+        return (
+          <div
+            key={suggestion.prompt}
+            className="aui-thread-welcome-suggestion-display fade-in slide-in-from-bottom-2 @md:nth-[n+3]:block nth-[n+3]:hidden animate-in fill-mode-both duration-200"
+            style={{ animationDelay: `${100 + index * 50}ms` }}
+          >
+            <ThreadPrimitive.Suggestion prompt={suggestion.prompt} send asChild>
+              <Button
+                variant="ghost"
+                className="suggestion-card aui-thread-welcome-suggestion h-auto w-full flex items-start justify-start gap-3 rounded-2xl border px-4 py-3.5 text-left text-sm transition-all hover:bg-accent/50 group"
+                aria-label={suggestion.prompt}
+              >
+                <div className={`shrink-0 mt-0.5 p-2 rounded-lg ${suggestion.bgColor} group-hover:scale-110 transition-transform`}>
+                  <Icon className={`h-4 w-4 ${suggestion.iconColor}`} />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="aui-thread-welcome-suggestion-text-1 font-semibold">
+                    {suggestion.title}
+                  </span>
+                  <span className="aui-thread-welcome-suggestion-text-2 text-muted-foreground text-xs">
+                    {suggestion.label}
+                  </span>
+                </div>
+              </Button>
+            </ThreadPrimitive.Suggestion>
+          </div>
+        );
+      })}
     </div>
   );
 };

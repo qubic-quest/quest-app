@@ -1,6 +1,8 @@
-# Quest 🔍
+# Qubic Quest 🔍
 
 ## **AI-Powered Blockchain Explorer for Qubic Network**
+
+![Main Interface](./docs/images/main-interface.png)
 
 Quest is an intelligent blockchain explorer that lets you query the Qubic blockchain using natural language. Ask questions, get insights, and visualize on-chain data—all through a conversational AI interface powered by OpenAI.
 
@@ -40,9 +42,6 @@ Chat with your blockchain data using natural language queries. The AI understand
 17. **query_whale_transactions** - Track large QUBIC transfers (1M+ default)
 
 ### 📈 Screenshots
-
-**Main Chat Interface:**
-![Main Interface](./docs/images/main-interface.png)
 
 **Transaction Tables:**
 ![Transaction Query Example](./docs/images/transactions.png)

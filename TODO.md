@@ -4,6 +4,8 @@
 
 ## 🚧 Current Tasks
 
+- [ ] Put database on cloud
+
 ### 📤 Add Export Functionality
 
 **Status:** Not Started  

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Wallet } from "lucide-react";
+import { Wallet, Activity } from "lucide-react";
 
 interface NavbarProps {
     onWalletChange?: (address: string) => void;
@@ -13,6 +13,7 @@ export function Navbar({ onWalletChange }: NavbarProps) {
     const [walletAddress, setWalletAddress] = useState("");
     const [qubicPrice, setQubicPrice] = useState<number | null>(null);
     const [priceChange, setPriceChange] = useState<number | null>(null);
+    const [currentTick, setCurrentTick] = useState<number | null>(null);
     const [isEditingWallet, setIsEditingWallet] = useState(false);
 
     // Load wallet from localStorage on mount
@@ -43,6 +44,25 @@ export function Navbar({ onWalletChange }: NavbarProps) {
         return () => clearInterval(interval);
     }, []);
 
+    // Fetch current tick
+    useEffect(() => {
+        const fetchTick = async () => {
+            try {
+                const res = await fetch("https://rpc.qubic.org/v1/tick-info");
+                const data = await res.json();
+                const tick = data.tickInfo?.tick || data.tick || 0;
+                setCurrentTick(tick);
+            } catch (error) {
+                console.error("Failed to fetch current tick:", error);
+            }
+        };
+
+        fetchTick();
+        const interval = setInterval(fetchTick, 10000); // Update every 10 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
     const handleWalletSubmit = () => {
         if (walletAddress.trim()) {
             localStorage.setItem("qubic-wallet-address", walletAddress.trim());
@@ -59,7 +79,7 @@ export function Navbar({ onWalletChange }: NavbarProps) {
     };
 
     return (
-        <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <nav className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="flex h-14 items-center justify-between px-4 w-full max-w-full">
                 {/* Left: Logo and Project Name */}
                 <div className="flex items-center gap-3">
@@ -67,33 +87,48 @@ export function Navbar({ onWalletChange }: NavbarProps) {
                         onClick={() => window.location.reload()} 
                         className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
                     >
-                        <img src="/logo.png" alt="Quest Logo" className="h-10 w-10 rounded-lg" />
+                        <img src="/logo_2.png" alt="Quest Logo" className="h-8 w-8 rounded-px" />
                         <div className="flex flex-col items-start">
                             <h1 className="font-bold leading-none">Qubic Quest</h1>
                             <p className="text-xs text-muted-foreground">AI Blockchain Explorer</p>
                         </div>
                     </button>
-                    <div className="hidden md:flex items-center gap-2 rounded-lg border bg-card px-4 py-2 ml-5">
-                        <img src="/qubic_logo_new.webp" alt="Qubic Logo" className="h-5 w-5 rounded-lg" />
-                        <div className="flex flex-col">
-                            {qubicPrice !== null ? (
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm font-semibold">
-                                        ${qubicPrice.toFixed(8)}
-                                    </span>
-                                    {priceChange !== null && (
-                                        <span
-                                            className={`text-xs ${priceChange >= 0 ? "text-green-500" : "text-red-500"
-                                                }`}
-                                        >
-                                            {priceChange >= 0 ? "↑" : "↓"}{" "}
-                                            {Math.abs(priceChange).toFixed(2)}%
+                    <div className="hidden md:flex items-center gap-3 ml-5">
+                        <div className="flex items-center gap-2 rounded-lg border bg-card px-4 py-2">
+                            <img src="/qubic_logo_new.webp" alt="Qubic Logo" className="h-5 w-5 rounded-lg" />
+                            <div className="flex flex-col">
+                                {qubicPrice !== null ? (
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-semibold">
+                                            ${qubicPrice.toFixed(8)}
                                         </span>
-                                    )}
-                                </div>
-                            ) : (
-                                <span className="text-sm text-muted-foreground">Loading...</span>
-                            )}
+                                        {priceChange !== null && (
+                                            <span
+                                                className={`text-xs ${priceChange >= 0 ? "text-emerald-500" : "text-red-500"
+                                                    }`}
+                                            >
+                                                {priceChange >= 0 ? "↑" : "↓"}{" "}
+                                                {Math.abs(priceChange).toFixed(2)}%
+                                            </span>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <span className="text-sm text-muted-foreground">Loading...</span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 rounded-lg border bg-card px-4 py-2">
+                            <Activity className="h-4 w-4 text-emerald-500 animate-pulse" />
+                            <div className="flex flex-col">
+                                {/* <span className="text-xs text-muted-foreground">Current Tick</span> */}
+                                {currentTick !== null ? (
+                                    <span className="text-sm font-semibold font-mono">
+                                        {currentTick.toLocaleString()}
+                                    </span>
+                                ) : (
+                                    <span className="text-sm text-muted-foreground">Loading...</span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -137,7 +172,7 @@ export function Navbar({ onWalletChange }: NavbarProps) {
                         </div>
                     ) : (
                         <div className="flex items-center gap-2 rounded-lg border bg-card px-3 py-1.5">
-                            <Wallet className="h-4 w-4 text-green-500" />
+                            <Wallet className="h-4 w-4 text-emerald-500" />
                             <span className="hidden sm:inline text-sm font-mono text-muted-foreground">
                                 {walletAddress.slice(0, 8)}...{walletAddress.slice(-8)}
                             </span>

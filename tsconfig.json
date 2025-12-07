@@ -1,0 +1,58 @@
+{
+  // "extends": "@assistant-ui/x-buildutils/ts/base",
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowJs": true,
+    "strictNullChecks": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@assistant-ui/*": [
+        "../../packages/*/src"
+      ],
+      "@assistant-ui/react/*": [
+        "../../packages/react/src/*"
+      ],
+      "@assistant-ui/tap/*": [
+        "../../packages/tap/src/*"
+      ],
+      "assistant-stream": [
+        "../../packages/assistant-stream/src"
+      ],
+      "assistant-stream/*": [
+        "../../packages/assistant-stream/src/*"
+      ]
+    },
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

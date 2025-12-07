@@ -1,0 +1,17 @@
+{
+  "servers": {
+    "assistant-ui": {
+      "command": "npx",
+      "args": ["-y", "@assistant-ui/mcp-docs-server"],
+      "type": "stdio"
+    },
+    "ai-elements": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://registry.ai-sdk.dev/api/mcp"
+      ]
+    }
+  }
+}
